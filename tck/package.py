@@ -18,7 +18,7 @@ files = \
 ["build/coverage-report/",
 "eftckl-v10",
 "build/hivemq-extension/sparkplug-tck-3.0.1-SNAPSHOT.zip",
-"build/hivemq-extension/sparkplug-tck-3.0.1-SNAPSHOT.zip.sig",
+#"build/hivemq-extension/sparkplug-tck-3.0.1-SNAPSHOT.zip.sig",
 "hivemq-configuration/",
 "UserGuide.html",
 "README.md",
@@ -63,7 +63,7 @@ except:
     pass
 
 # generate signature for HiveMQ extension file - this needs to be run with the correct gpg identity
-os.system("gpg --batch --yes --detach-sign build/hivemq-extension/sparkplug-tck-3.0.1-SNAPSHOT.zip")
+#os.system("gpg --batch --yes --detach-sign build/hivemq-extension/sparkplug-tck-3.0.1-SNAPSHOT.zip")
 
 # Update the UserGuide.html doc
 os.system("asciidoc UserGuide.adoc")
