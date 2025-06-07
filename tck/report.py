@@ -10,6 +10,7 @@
  *
  * Contributors:
  *   Ian Craggs - initial implementation
+ *   Scott Wyant - add CSS classes & styling to results  
  ********************************************************************************"""
 
 import glob, sys, datetime
@@ -251,7 +252,7 @@ def export_html(profile, results, reqs):
 
     for group in groups.keys():
         #print("Group", group, groups[group])
-        lines.append("<h4>%s Group</h4>" % (group, ))
+        lines.append("<h3>%s Group</h3>" % (group, ))
         count, passed, fails, percent, optional_count, optional_passed, percent_without_optional = stats(groups[group], results)
         lines.append("<h4>Assertion count: %d Number passed: %d Number failed: %d Percent passed: %d%% </h4>" % (count, passed, fails, percent))
         lines.append("<table border=1 width=100%>")
@@ -264,11 +265,12 @@ def export_html(profile, results, reqs):
             if results[key] == None:
                 curline = "<tr><td style=\"text-align: left\">%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td></tr>" % (key_out, assertion_type, "", "", "")
             else:
-                curline = "<tr><td style=\"text-align: left\">%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td></tr>" % (key_out, assertion_type, results[key][0], results[key][1], results[key][2])
+                resultClass = "test_" + results[key][2].replace(" ", "_").lower()
+                curline = "<tr><td style=\"text-align: left\">%s</td><td>%s</td><td>%s</td><td>%s</td><td class=\"%s\">%s</td></tr>" % (key_out, assertion_type, results[key][0], results[key][1], resultClass, results[key][2].replace(" ", "&nbsp;"))
             lines.append(curline)
         lines.append("</table>")
 
-    lines.append("<h4>Main Group</h4>")
+    lines.append("<h3>Main Group</h3>")
     count, passed, fails, percent, optional_count, optional_passed, percent_without_optional = stats(sorted_list, results)
     lines.append("<h4>Assertion count: %d Number passed: %d Number failed: %d Percent passed: %d%% </h4>" % (count, passed, fails, percent))
     lines.append("<h4>Optional assertion count: %d Optional number passed: %d Percent passed without optional: %d%% </h4>" % (optional_count, optional_passed, percent_without_optional))
@@ -284,7 +286,8 @@ def export_html(profile, results, reqs):
         if results[key] == None:
             curline = "<tr><td style=\"text-align: left\">%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td></tr>" % (key_out, assertion_type, "", "", "")
         else:
-            curline = "<tr><td style=\"text-align: left\">%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td></tr>" % (key_out, assertion_type, results[key][0], results[key][1], results[key][2])
+            resultClass = "test_" + results[key][2].replace(" ", "_").lower()
+            curline = "<tr><td style=\"text-align: left\">%s</td><td>%s</td><td>%s</td><td>%s</td><td class=\"%s\">%s</td></tr>" % (key_out, assertion_type, results[key][0], results[key][1], resultClass, results[key][2].replace(" ", "&nbsp;"))
         lines.append(curline)
     lines.append("</table>")
     return lines
@@ -355,8 +358,15 @@ if __name__ == "__main__":
         border-collapse: collapse;
         text-align: center;
     }
+    td.test_not_executed {
+        background-color: #FFFFCC;
+    }
+    td.test_pass {
+        background-color: #CCFFCC;
+    }
     </style>
     </head>
+    <body>
     """
 
     post = """
@@ -366,11 +376,14 @@ if __name__ == "__main__":
 
     now = datetime.datetime.now()
     outlines = ["<h1>Eclipse&trade; Sparkplug&trade; TCK Results summary</h1>"]
-    outlines.extend("Date: " + now.strftime("%d/%m/%Y %H:%M:%S"))
+    outlines.extend("<p id=\"date\">Date: " + now.strftime("%d/%m/%Y %H:%M:%S") + "</p>")
     outlines.extend(warnings)
-    outlines.extend(export_html("Broker", brokerresults, descs))
-    outlines.extend(export_html("Host", hostresults, descs))
-    outlines.extend(export_html("Edge", edgeresults, descs))
+    if len(brokerids):
+        outlines.extend(export_html("Broker", brokerresults, descs))
+    if len(hostids):
+        outlines.extend(export_html("Host", hostresults, descs))
+    if len(edgeids):
+        outlines.extend(export_html("Edge", edgeresults, descs))
     outlines = [pre] + outlines + [post]
 
     outfilename = "summary.html"
@@ -379,5 +392,3 @@ if __name__ == "__main__":
     outfile.close()
 
     print("Results summary written to", outfilename)
-
-
